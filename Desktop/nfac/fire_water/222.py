@@ -1,7 +1,8 @@
 import pygame
 import os
+import random
 
-os.chdir('C:/Users/ASUS/Desktop/pp2/fire_water') 
+os.chdir('C:/Users/ASUS/Desktop/nfac/fire_water') 
 pygame.init()
 width = 1200
 height = 700
@@ -87,6 +88,43 @@ class Water(pygame.sprite.Sprite):
     def draw(self, surface):
         surface.blit(self.image, self.rect)
 
+# class Block:
+#     def __init__(self, _x=0, _y=0, image_path="block.png"):
+#         super().__init__()
+#         self.x = _x
+#         self.y = _y
+#         self.image = pygame.image.load(image_path).convert_alpha()
+#         self.image = pygame.transform.scale(self.image, (10, 10))
+
+#     def draw(self):
+#         screen.blit(self.image, (self.x, self.y))
+
+# def own_round(value, base=10):   # rounding the coordinates for following the grid
+#     return base * round(value / 10
+#                         )
+# class Wall:
+#     def __init__(self, _position='top', _length=6, _image_path="block.png"):
+#         self.construction = []  # wall consists of array of blocks
+#         self.position = _position  # left, right, top, bottom
+#         self.length = _length  # length of wall
+#         self.image_path = _image_path
+#         self.construct()  # the tail of wall (blocks)
+
+#     def construct(self):
+#         if self.position == 'top' or self.position == 'bottom':  # bottom or top
+#             x = own_round(random.randint(width//4, 3*width//4))
+#             y = 0 if self.position == 'top' else height  # y is the border
+#             for i in range(self.length):
+#                 self.construction.append(Block(_x=x+i*10, _y=y, image_path=self.image_path))
+#         if self.position == 'right' or self.position == 'left':  # left or right
+#             y = own_round(random.randint(height//4, 3*height//4))
+#             x = 0 if self.position == 'left' else width-10  # y is the border
+#             for i in range(self.length):
+#                 self.construction.append(Block(_x=x, _y=y+i*10, image_path=self.image_path))
+
+#     def draw(self):  # draw wall
+#         for block in self.construction:
+#             block.draw()
 
 
 
@@ -110,5 +148,8 @@ while running:
     fire_sprite.draw(screen)
     water_sprite.draw(screen)
     pygame.display.flip()
+
+
+
 
 pygame.quit()
