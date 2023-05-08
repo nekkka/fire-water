@@ -1,5 +1,6 @@
 import pygame
 import os
+import time
 import random
 
 os.chdir('C:/Users/ASUS/Desktop/nfac/fire_water') 
@@ -12,6 +13,7 @@ screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Fire and water")
 
 
+
 class Fire(pygame.sprite.Sprite):
     def __init__(self, width, height, blocks):
         super().__init__() 
@@ -21,7 +23,7 @@ class Fire(pygame.sprite.Sprite):
         self.rect.center = (50, 620)
         self.width = width
         self.height = height
-        self.jump_height = 11
+        self.jump_height = 10
         self.jump_velocity = 0
         self.gravity = 0.5
         self.is_jumping = False
@@ -63,20 +65,6 @@ class Fire(pygame.sprite.Sprite):
             if block.rect.colliderect(self.rect.x, self.rect.y - 5, self.rect.width, self.rect.height):
                 self.rect.move_ip(0, 5)
                 self.jump_velocity = 0
-
-
-            # for block in self.blocks:
-            #     if hasattr(block, "rect") and block.rect.colliderect(self.rect.x + 5, self.rect.y, self.rect.width, self.rect.height):
-            #         self.rect.move_ip(-5, 0)
-            #     if hasattr(block, "rect") and block.rect.colliderect(self.rect.x - 5, self.rect.y, self.rect.width, self.rect.height):
-            #         self.rect.move_ip(5, 0)
-            #     if hasattr(block, "rect") and block.rect.colliderect(self.rect.x, self.rect.y + 5, self.rect.width, self.rect.height):
-            #         self.is_jumping = False
-            #         self.rect.move_ip(0, -5)
-            #         self.jump_velocity = 0
-            #     if hasattr(block, "rect") and block.rect.colliderect(self.rect.x, self.rect.y - 5, self.rect.width, self.rect.height):
-            #         self.rect.move_ip(0, 5)
-            #         self.jump_velocity = 0
  
     def draw(self, surface):
         surface.blit(self.image, self.rect)
@@ -90,10 +78,10 @@ class Water(pygame.sprite.Sprite):
         self.image = pygame.image.load("water.png")
         self.image = pygame.transform.scale(self.image, (40, 80))
         self.rect = self.image.get_rect()
-        self.rect.center = (50, 620)
+        self.rect.center = (90, 620)
         self.width = width
         self.height = height
-        self.jump_height = 11
+        self.jump_height = 10
         self.jump_velocity = 0
         self.gravity = 0.5
         self.is_jumping = False
@@ -156,18 +144,99 @@ class Block:
         screen.blit(self.image, (self.x, self.y))
 
 
-prepatsv = [Block(x, y) for x in range(25, 500, 40) for y in range(530, 570, 40)]
+
+
+class Lava(pygame.sprite.Sprite):
+	def __init__(self, x, y):
+		pygame.sprite.Sprite.__init__(self)
+		img = pygame.image.load('zhizha.png')
+		self.image = pygame.transform.scale(img, (60, 60))
+		self.rect = self.image.get_rect()
+		self.rect.x = x
+		self.rect.y = y
+                
+class Platform(pygame.sprite.Sprite):
+	def __init__(self, x, y):
+		pygame.sprite.Sprite.__init__(self)
+		img = pygame.image.load('platform.png')
+		self.image = pygame.transform.scale(img, (60, 60))
+		self.rect = self.image.get_rect()
+		self.rect.x = x
+		self.rect.y = y
+                
+class Lever(pygame.sprite.Sprite):
+    def __init__(self, x, y, up_blocks, down_blocks):
+        super().__init__() 
+        self.image_off = pygame.image.load("rychag_off.png")
+        self.image_off = pygame.transform.scale(self.image_off, (40, 80))
+        self.image_on = pygame.image.load("rychag_on.png")
+        self.image_on = pygame.transform.scale(self.image_on, (40, 80))
+        self.image = self.image_off
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+        self.up_blocks = up_blocks
+        self.down_blocks = down_blocks
+        self.is_on = False
+
+    def update(self):
+        pressed_keys = pygame.key.get_pressed()
+
+        if self.rect.colliderect(all_sprites.rect):
+            self.is_on = True
+
+        if self.is_on:
+            self.image = self.image_on
+            for block in self.up_blocks:
+                block.rect.move_ip(0, -5)
+            for block in self.down_blocks:
+                block.rect.move_ip(0, 5)
+        else:
+            self.image = self.image_off
+
+    def draw(self, surface):
+        surface.blit(self.image, self.rect)
+
+                
+
+def over_the_game(): # game over screen
+    end = pygame.image.load('over.png')
+    end = pygame.transform.scale(end, (1200, 700))
+    screen.blit(end, (0 , 0))
+    pygame.display.update()
+    time.sleep(3)
+    pygame.quit()
+
+
+
+
+
+prepatsv = [Block(x, y) for x in range(25, 500, 40) for y in range(510, 550, 40)]
+pr = [Block(x, y) for x in range(610, 790, 40) for y in range(410, 450, 40)]
+p3 = [Block(x, y) for x in range(0, 440, 40) for y in range(210, 250, 40)]
+p2 = [Block(x, y) for x in range(600, 640, 40) for y in range(560, 600, 40)]
+blup = [Block(x, y) for x in range(900, 940, 40) for y in range(330, 370, 40)]
 pol = [Block(x, y) for x in range(0, width, 40) for y in range(height-50, height, 40)]
 blocks=[]
 blocks.extend(prepatsv)
 blocks.extend(pol)
+blocks.extend(pr)
+blocks.extend(p2)
+blocks.extend(blup)
+blocks.extend(p3)
 
 
 fire_sprite = Fire(width, height, blocks)
 water_sprite = Water(width, height, blocks)
+all_sprites = pygame.sprite.Group()
+all_sprites.add(fire_sprite)
+all_sprites.add(water_sprite)
+liquid = Lava(145, 465)
+lq2 = Lava(670, 360)
+liquid_group = pygame.sprite.Group()
+liquid_group.add(liquid)
+liquid_group.add(lq2)
 
 
-# blocks = [Block(x, y) for x in range(25, 500, 50) for y in range(500, 550, 50)]
 
 running = True
 while running:
@@ -189,7 +258,12 @@ while running:
 
     fire_sprite.draw(screen)
     water_sprite.draw(screen)
+    liquid_group.draw(screen)
     pygame.display.flip()
+    if pygame.sprite.spritecollideany(fire_sprite, liquid_group):
+        over_the_game()
+    if pygame.sprite.spritecollideany(water_sprite, liquid_group):
+        over_the_game()
 
 
 
