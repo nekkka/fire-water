@@ -172,7 +172,7 @@ class Platform:
         self.x = _x
         self.y = _y
         self.image = pygame.image.load(image_path).convert_alpha()
-        self.image = pygame.transform.scale(self.image, (50, 50))
+        self.image = pygame.transform.scale(self.image, (40, 10))
         self.rect = self.image.get_rect()
         self.rect.x = self.x
         self.rect.y = self.y
@@ -218,6 +218,7 @@ class Lever(pygame.sprite.Sprite):
 def over_the_game(): # game over screen
     end = pygame.image.load('over.png')
     end = pygame.transform.scale(end, (1200, 700))
+    pygame.mixer.music.stop()
     screen.blit(end, (0 , 0))
     pygame.display.update()
     time.sleep(3)
@@ -243,7 +244,7 @@ blocks.extend(p3)
 
 
 up_blocks=[]
-platfff = [Platform(x, y) for x in range(430, 480, 50) for y in range(460, 470, 50)]
+platfff = [Platform(x, y) for x in range(430, 480, 50) for y in range(500, 520, 50)]
 up_blocks.extend(platfff)
 blocks.extend(platfff)
 
@@ -262,7 +263,8 @@ liquid_group = pygame.sprite.Group()
 liquid_group.add(liquid)
 liquid_group.add(lq2)
 
-
+pygame.mixer.music.load('music.mp3')
+pygame.mixer.music.play(-1)
 
 running = True
 while running:
