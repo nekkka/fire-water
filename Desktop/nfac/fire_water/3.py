@@ -2,6 +2,7 @@ import pygame
 import os
 import time
 import random
+import pickle
 
 os.chdir('C:/Users/ASUS/Desktop/nfac/fire_water') 
 pygame.init()
@@ -27,8 +28,7 @@ class Fire(pygame.sprite.Sprite):
         self.jump_velocity = 0
         self.gravity = 0.5
         self.is_jumping = False
-        self.blocks = blocks  # добавить список блоков
- 
+        self.blocks = blocks 
     def update(self):
         pressed_keys = pygame.key.get_pressed()
 
@@ -52,7 +52,7 @@ class Fire(pygame.sprite.Sprite):
                 self.is_jumping = True
                 self.jump_velocity = self.jump_height
 
-        # добавить проверку столкновения с блоками
+
         for block in self.blocks:
             if block.rect.colliderect(self.rect.x + 5, self.rect.y, self.rect.width, self.rect.height):
                 self.rect.move_ip(-5, 0)
@@ -62,7 +62,7 @@ class Fire(pygame.sprite.Sprite):
                 self.is_jumping = False
                 self.rect.move_ip(0, -5)
                 self.jump_velocity = 0
-            if block.rect.colliderect(self.rect.x, self.rect.y - 5, self.rect.width, self.rect.height):
+            if block.rect.colliderect(self.rect.x, self.rect.y -5, self.rect.width, self.rect.height):
                 self.rect.move_ip(0, 5)
                 self.jump_velocity = 0
  
@@ -85,8 +85,7 @@ class Water(pygame.sprite.Sprite):
         self.jump_velocity = 0
         self.gravity = 0.5
         self.is_jumping = False
-        self.blocks = blocks  # добавить список блоков
- 
+        self.blocks = blocks  
     def update(self):
         pressed_keys = pygame.key.get_pressed()
 
@@ -110,7 +109,6 @@ class Water(pygame.sprite.Sprite):
                 self.is_jumping = True
                 self.jump_velocity = self.jump_height
 
-        # добавить проверку столкновения с блоками
         for block in self.blocks:
             if block.rect.colliderect(self.rect.x + 5, self.rect.y, self.rect.width, self.rect.height):
                 self.rect.move_ip(-5, 0)
@@ -123,6 +121,8 @@ class Water(pygame.sprite.Sprite):
             if block.rect.colliderect(self.rect.x, self.rect.y - 5, self.rect.width, self.rect.height):
                 self.rect.move_ip(0, 5)
                 self.jump_velocity = 0
+
+                
  
     def draw(self, surface):
         surface.blit(self.image, self.rect)
@@ -145,7 +145,6 @@ class Block:
 
 
 
-
 class Lava(pygame.sprite.Sprite):
 	def __init__(self, x, y):
 		pygame.sprite.Sprite.__init__(self)
@@ -154,15 +153,7 @@ class Lava(pygame.sprite.Sprite):
 		self.rect = self.image.get_rect()
 		self.rect.x = x
 		self.rect.y = y
-                
-# class Platform(pygame.sprite.Sprite):
-# 	def __init__(self, x, y):
-# 		pygame.sprite.Sprite.__init__(self)
-# 		img = pygame.image.load('platform.png')
-# 		self.image = pygame.transform.scale(img, (60, 60))
-# 		self.rect = self.image.get_rect()
-# 		self.rect.x = x
-# 		self.rect.y = y
+
                 
 
 
@@ -198,7 +189,7 @@ class Lever(pygame.sprite.Sprite):
     def update(self):
         pressed_keys = pygame.key.get_pressed()
 
-        if self.rect.colliderect(all_sprites.rect):
+        if self.rect.colliderect(fire_sprite.rect) or self.rect.colliderect(water_sprite.rect):
             self.is_on = True
 
         if self.is_on:
@@ -213,7 +204,67 @@ class Lever(pygame.sprite.Sprite):
     def draw(self, surface):
         surface.blit(self.image, self.rect)
 
-                
+
+# class Lever(pygame.sprite.Sprite):
+#     def __init__(self, _x=0, _y=0):
+#         super().__init__() 
+#         self.image = pygame.image.load("rychag_off.png")
+#         self.image = pygame.transform.scale(self.image, (40, 80))
+#         self.rect = self.image.get_rect()
+#         self.rect.x = self.x
+#         self.rect.y = self.y
+#         self.state = 1 # начальное состояние рычага
+ 
+#     def change_state(self):
+#         if self.state == 1:
+#             self.image = pygame.image.load("rychag_on.png")
+#             self.image = pygame.transform.scale(self.image, (40, 80))
+#             self.state = 2
+#         else:
+#             self.image = pygame.image.load("rychag_off.png")
+#             self.image = pygame.transform.scale(self.image, (40, 80))
+#             self.state = 1
+ 
+#     def update(self, fire, water):
+#         if self.rect.colliderect(fire.rect) or self.rect.colliderect(water.rect):
+#             self.change_state()
+
+
+class Cryst_w(pygame.sprite.Sprite):
+    def __init__(self, x, y, water_sprite):
+        super().__init__() 
+        self.image = pygame.image.load("cryst_w.png")
+        self.image = pygame.transform.scale(self.image, (20, 30))
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+        self.water_sprite = water_sprite
+ 
+    def draw(self, surface):
+        surface.blit(self.image, self.rect)
+
+    def kill(self):
+        if pygame.sprite.spritecollideany(water_sprite, cr):
+            score += 1
+            for stone in cr:
+                stone.kill() 
+
+
+class Cryst_f(pygame.sprite.Sprite):
+    def __init__(self, x, y, water_sprite):
+        super().__init__() 
+        self.image = pygame.image.load("cryst_f.png")
+        self.image = pygame.transform.scale(self.image, (20, 30))
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+        self.fire_sprite = fire_sprite
+ 
+    def draw(self, surface):
+        surface.blit(self.image, self.rect)
+
+    def kill(self):
+        if self.rect.colliderect(self.fire_sprite.rect):
+            super().kill()
+
 
 def over_the_game(): # game over screen
     end = pygame.image.load('over.png')
@@ -223,7 +274,6 @@ def over_the_game(): # game over screen
     pygame.display.update()
     time.sleep(3)
     pygame.quit()
-
 
 
 
@@ -241,14 +291,20 @@ blocks.extend(pr)
 blocks.extend(p2)
 blocks.extend(blup)
 blocks.extend(p3)
-
-
 up_blocks=[]
 platfff = [Platform(x, y) for x in range(430, 480, 50) for y in range(500, 520, 50)]
 up_blocks.extend(platfff)
 blocks.extend(platfff)
-
 rychag = Lever(950, 310, up_blocks)
+liquid = Lava(145, 465)
+lq2 = Lava(670, 360)
+liquid_group = pygame.sprite.Group()
+liquid_group.add(liquid)
+liquid_group.add(lq2)
+
+
+
+
 
 fire_sprite = Fire(width, height, blocks)
 water_sprite = Water(width, height, blocks)
@@ -257,15 +313,16 @@ all_sprites.add(fire_sprite)
 all_sprites.add(water_sprite)
 
 
-liquid = Lava(145, 465)
-lq2 = Lava(670, 360)
-liquid_group = pygame.sprite.Group()
-liquid_group.add(liquid)
-liquid_group.add(lq2)
+
+cr = pygame.sprite.Group()
+crystalf = Cryst_f(80, 490, fire_sprite)
+crystalw = Cryst_w(40, 490, water_sprite)
+cr.add(crystalw)
+score = 0
+
 
 pygame.mixer.music.load('music.mp3')
 pygame.mixer.music.play(-1)
-
 running = True
 while running:
     for event in pygame.event.get():
@@ -289,13 +346,16 @@ while running:
     fire_sprite.draw(screen)
     water_sprite.draw(screen)
     liquid_group.draw(screen)
+    crystalf.draw(screen)
+    crystalw.draw(screen)
     rychag.draw(screen)
     pygame.display.flip()
     if pygame.sprite.spritecollideany(fire_sprite, liquid_group):
         over_the_game()
     if pygame.sprite.spritecollideany(water_sprite, liquid_group):
         over_the_game()
-
-
-
+    # if pygame.sprite.spritecollideany(water_sprite, cr):
+    #     score += 1
+    #     for stone in cr:
+    #         stone.kill() 
 pygame.quit()
