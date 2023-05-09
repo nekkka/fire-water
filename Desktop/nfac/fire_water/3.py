@@ -155,27 +155,44 @@ class Lava(pygame.sprite.Sprite):
 		self.rect.x = x
 		self.rect.y = y
                 
-class Platform(pygame.sprite.Sprite):
-	def __init__(self, x, y):
-		pygame.sprite.Sprite.__init__(self)
-		img = pygame.image.load('platform.png')
-		self.image = pygame.transform.scale(img, (60, 60))
-		self.rect = self.image.get_rect()
-		self.rect.x = x
-		self.rect.y = y
+# class Platform(pygame.sprite.Sprite):
+# 	def __init__(self, x, y):
+# 		pygame.sprite.Sprite.__init__(self)
+# 		img = pygame.image.load('platform.png')
+# 		self.image = pygame.transform.scale(img, (60, 60))
+# 		self.rect = self.image.get_rect()
+# 		self.rect.x = x
+# 		self.rect.y = y
                 
+
+
+class Platform:
+    def __init__(self, _x=0, _y=0, image_path="platform.png"):
+        super().__init__()
+        self.x = _x
+        self.y = _y
+        self.image = pygame.image.load(image_path).convert_alpha()
+        self.image = pygame.transform.scale(self.image, (50, 50))
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+    def draw(self):
+        screen.blit(self.image, (self.x, self.y))
+
+
 class Lever(pygame.sprite.Sprite):
-    def __init__(self, x, y, up_blocks, down_blocks):
+    def __init__(self, x, y, up_blocks):
         super().__init__() 
         self.image_off = pygame.image.load("rychag_off.png")
-        self.image_off = pygame.transform.scale(self.image_off, (40, 80))
+        self.image_off = pygame.transform.scale(self.image_off, (40, 40))
         self.image_on = pygame.image.load("rychag_on.png")
-        self.image_on = pygame.transform.scale(self.image_on, (40, 80))
+        self.image_on = pygame.transform.scale(self.image_on, (40, 40))
         self.image = self.image_off
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.up_blocks = up_blocks
-        self.down_blocks = down_blocks
+        # self.down_blocks = down_blocks
         self.is_on = False
 
     def update(self):
@@ -188,8 +205,8 @@ class Lever(pygame.sprite.Sprite):
             self.image = self.image_on
             for block in self.up_blocks:
                 block.rect.move_ip(0, -5)
-            for block in self.down_blocks:
-                block.rect.move_ip(0, 5)
+            # for block in self.down_blocks:
+            #     block.rect.move_ip(0, 5)
         else:
             self.image = self.image_off
 
@@ -214,7 +231,7 @@ prepatsv = [Block(x, y) for x in range(25, 500, 40) for y in range(510, 550, 40)
 pr = [Block(x, y) for x in range(610, 790, 40) for y in range(410, 450, 40)]
 p3 = [Block(x, y) for x in range(0, 440, 40) for y in range(210, 250, 40)]
 p2 = [Block(x, y) for x in range(600, 640, 40) for y in range(560, 600, 40)]
-blup = [Block(x, y) for x in range(900, 940, 40) for y in range(330, 370, 40)]
+blup = [Block(x, y) for x in range(900, 980, 40) for y in range(330, 370, 40)]
 pol = [Block(x, y) for x in range(0, width, 40) for y in range(height-50, height, 40)]
 blocks=[]
 blocks.extend(prepatsv)
@@ -225,11 +242,20 @@ blocks.extend(blup)
 blocks.extend(p3)
 
 
+up_blocks=[]
+platfff = [Platform(x, y) for x in range(430, 480, 50) for y in range(460, 470, 50)]
+up_blocks.extend(platfff)
+blocks.extend(platfff)
+
+rychag = Lever(950, 310, up_blocks)
+
 fire_sprite = Fire(width, height, blocks)
 water_sprite = Water(width, height, blocks)
 all_sprites = pygame.sprite.Group()
 all_sprites.add(fire_sprite)
 all_sprites.add(water_sprite)
+
+
 liquid = Lava(145, 465)
 lq2 = Lava(670, 360)
 liquid_group = pygame.sprite.Group()
@@ -253,12 +279,15 @@ while running:
     water_sprite.update()
     for block in blocks:
             block.draw()
-    for i in prepatsv:
-            i.draw()
+
+
+    for pl in up_blocks:
+            pl.draw()
 
     fire_sprite.draw(screen)
     water_sprite.draw(screen)
     liquid_group.draw(screen)
+    rychag.draw(screen)
     pygame.display.flip()
     if pygame.sprite.spritecollideany(fire_sprite, liquid_group):
         over_the_game()
